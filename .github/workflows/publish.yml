@@ -1,0 +1,107 @@
+# Builds the BA Toolbox extension zip with Blender's own tooling on every push and PR,
+# and on pushes to main publishes a Blender "remote extension repository" to GitHub Pages:
+#   https://<owner>.github.io/<repo>/index.json
+# Add that URL once in Blender (Preferences > Get Extensions > Repositories) and Blender
+# offers updates whenever `version` in ba_toolbox/blender_manifest.toml changes on main.
+#
+# One-time GitHub setting: Settings > Pages > Build and deployment > Source = "GitHub Actions".
+
+name: Publish extension repository
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "ba_toolbox/**"
+      - ".github/workflows/publish.yml"
+  pull_request:
+    paths:
+      - "ba_toolbox/**"
+      - ".github/workflows/publish.yml"
+  workflow_dispatch:
+
+env:
+  # Blender used to build and validate. Any 4.2+ works; pin an LTS for reproducible builds.
+  BLENDER_VERSION: "4.5.4"
+  BLENDER_SERIES: "4.5"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache Blender
+        id: cache-blender
+        uses: actions/cache@v4
+        with:
+          path: ~/blender
+          key: blender-${{ env.BLENDER_VERSION }}-linux-x64
+
+      - name: Download Blender
+        if: steps.cache-blender.outputs.cache-hit != 'true'
+        run: |
+          set -euo pipefail
+          url="https://download.blender.org/release/Blender${BLENDER_SERIES}/blender-${BLENDER_VERSION}-linux-x64.tar.xz"
+          echo "Downloading $url"
+          curl -fsSL "$url" -o blender.tar.xz
+          mkdir -p ~/blender
+          tar -xJf blender.tar.xz -C ~/blender --strip-components=1
+          rm blender.tar.xz
+
+      - name: Install Blender runtime libraries
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq libxi6 libxxf86vm1 libxfixes3 libxrender1 libgl1 libxkbcommon0 libsm6 libegl1 >/dev/null
+
+      - name: Build and validate extension
+        run: |
+          set -euo pipefail
+          BLENDER=~/blender/blender
+          "$BLENDER" --version | head -1
+          mkdir -p site
+          "$BLENDER" --command extension build --source-dir ba_toolbox --output-dir site
+          "$BLENDER" --command extension validate site/*.zip
+
+      - name: Generate repository index
+        run: |
+          set -euo pipefail
+          ~/blender/blender --command extension server-generate --repo-dir site --html
+          echo "--- site contents"; ls -la site
+          echo "--- index.json"; cat site/index.json
+
+      - name: Upload build artifact (for inspection on PRs)
+        uses: actions/upload-artifact@v4
+        with:
+          name: ba_toolbox-build
+          path: site
+          retention-days: 14
+
+      - name: Upload Pages artifact
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    # Publish only from main (push or manual run), never from pull requests.
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

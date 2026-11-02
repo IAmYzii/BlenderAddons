@@ -11,17 +11,48 @@ of the 3D Viewport. Individual tools can be switched off in the add-on preferenc
 
 Each tool folder has its own README with usage details.
 
-## Install
+## Install (recommended: online repository with automatic updates)
 
-Blender > Edit > Preferences > Get Extensions > Install from Disk, and pick the
-`ba_toolbox-<version>.zip`. Build the zip from the repository root with:
+Every push to `main` publishes a Blender extension repository to GitHub Pages. Add it once
+and Blender keeps the toolbox up to date:
+
+1. Blender > Edit > Preferences > Get Extensions > the dropdown at the top right
+   (Repositories) > **+** > **Add Remote Repository**.
+2. URL:
+
+   ```
+   https://iamyzii.github.io/BlenderAddons/index.json
+   ```
+
+   Leave "Check for Updates on Startup" on. Confirm.
+3. Search for **BA Toolbox** in Get Extensions and click **Install**. It is enabled
+   automatically.
+
+When a new version lands on `main`, Get Extensions shows an **Update** button (or updates on
+startup if you let it). Its add-on preferences list every tool with an on/off toggle; a tool
+that fails to load shows its error there instead of breaking the rest.
+
+### Install from a zip instead
+
+Build the zip from the repository root, then Blender > Preferences > Get Extensions >
+Install from Disk:
 
 ```
 blender --command extension build --source-dir ba_toolbox --output-dir dist
 ```
 
-Then enable **BA Toolbox** under Preferences > Add-ons. Its preferences list every tool with
-an on/off toggle; a tool that fails to load shows its error there instead of breaking the rest.
+### Releasing a new version
+
+1. Bump `version` in `ba_toolbox/blender_manifest.toml` on the tool branch (semantic
+   versioning: patch for fixes, minor for new tools or features).
+2. Merge into `main` and push. The **Publish extension repository** workflow
+   (`.github/workflows/publish.yml`) builds the zip with Blender's own tooling, validates it,
+   regenerates `index.json`, and deploys to GitHub Pages.
+3. Pull requests and pushes to other branches run the build and validation only, and attach
+   the zip as a workflow artifact for inspection.
+
+One-time repository setting for this to work: GitHub > Settings > Pages > Build and
+deployment > Source = **GitHub Actions**.
 
 ## Repository layout
 
