@@ -10,6 +10,9 @@ else:
     import bpy  # noqa: F401
     from . import core, properties, operators, ui
 
+label = "Material Assign"
+description = "Replace every material on the selected objects with one chosen material"
+
 _modules = (properties, operators, ui)
 
 
