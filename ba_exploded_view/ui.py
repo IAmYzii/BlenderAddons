@@ -12,11 +12,10 @@ class BAEXV_PT_panel(bpy.types.Panel):
         layout = self.layout
         s = context.scene.ba_exploded_view
 
-        col = layout.column(align=True)
-        col.prop(s, "distance")
-        col.prop(s, "extra")
+        layout.prop(s, "distance")
         layout.prop(s, "mode", expand=True)
         layout.prop(s, "center")
+        layout.prop(s, "duration")
 
         row = layout.row(align=True)
         row.scale_y = 1.4

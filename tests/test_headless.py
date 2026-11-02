@@ -1,4 +1,4 @@
-"""Run with: blender -b --python tests/test_headless.py"""
+"""Run with: blender -b --factory-startup --python tests/test_headless.py"""
 import sys
 import os
 import bpy
@@ -33,8 +33,8 @@ bpy.ops.object.light_add(type='POINT', location=(0, 0, 5))
 light = ctx.active_object
 bpy.ops.object.select_all(action='DESELECT')
 
-# 1. Explode all (nothing selected), distance mode.
-s.distance, s.extra, s.mode, s.center = 1.0, 0.0, 'DISTANCE', 'BOUNDS'
+# 1. Explode all (nothing selected), distance mode, instant.
+s.distance, s.duration, s.mode, s.center = 1.0, 0.0, 'DISTANCE', 'BOUNDS'
 assert bpy.ops.object.ba_exv_explode() == {'FINISHED'}
 # bounds center = (0, 1.5, 0)
 assert close(a.location, Vector((-2, 0, 0)) + Vector((-2, -1.5, 0)).normalized())
@@ -49,22 +49,18 @@ assert close(c.location, (0, 6, 0)), c.location
 bpy.ops.object.ba_exv_explode()
 assert close(c.location, (0, 6, 0)), "explode must not compound"
 
-# 3. Extra adds on top.
-s.extra = 1.0
-assert close(c.location, (0, 7, 0))
-
-# 4. Scale mode.
+# 3. Scale mode.
 s.mode = 'SCALE'
-s.distance, s.extra = 1.0, 0.0  # factor 1 => doubles offset from center
+s.distance = 1.0  # factor 1 => doubles offset from center
 assert close(c.location, (0, 4.5, 0)), c.location
 
-# 5. Reset all.
+# 4. Reset all.
 assert bpy.ops.object.ba_exv_reset() == {'FINISHED'}
 assert close(a.location, (-2, 0, 0)) and close(b.location, (2, 0, 0)) and close(c.location, (0, 3, 0))
 assert not any(core.is_exploded(o) for o in ctx.scene.objects)
 assert not bpy.ops.object.ba_exv_reset.poll()
 
-# 6. Selection only.
+# 5. Selection only.
 s.mode, s.distance = 'DISTANCE', 2.0
 a.select_set(True)
 b.select_set(True)
@@ -73,7 +69,7 @@ bpy.ops.object.ba_exv_explode()
 assert close(a.location, (-4, 0, 0)) and close(b.location, (4, 0, 0))
 assert close(c.location, (0, 3, 0)) and not core.is_exploded(c)
 
-# 7. Reset selection only, then reset the rest.
+# 6. Reset selection only, then reset the rest.
 bpy.ops.object.select_all(action='DESELECT')
 a.select_set(True)
 bpy.ops.object.ba_exv_reset()
@@ -82,7 +78,7 @@ bpy.ops.object.select_all(action='DESELECT')
 bpy.ops.object.ba_exv_reset()
 assert close(b.location, (2, 0, 0))
 
-# 8. Parented child with a rotated parent: world offset is correct, child not double-moved.
+# 7. Parented child with a rotated parent: world offset is correct, child not double-moved.
 bpy.ops.object.empty_add(location=(5, 0, 0))
 parent = ctx.active_object
 parent.rotation_euler = (0, 0, 1.5707963)  # 90 deg about Z
@@ -112,6 +108,25 @@ assert close(core.world_bbox_center(d), before + Vector((0, 1, 0))), core.world_
 bpy.ops.object.ba_exv_reset()
 ctx.view_layer.update()
 assert close(core.world_bbox_center(d), before)
+
+# 8. Animation: end state is written immediately (undo-safe), the tween runs on a timer.
+bpy.ops.object.select_all(action='DESELECT')
+c.select_set(True)
+s.center, s.mode, s.distance, s.duration = 'CURSOR', 'DISTANCE', 2.0, 0.3
+ctx.scene.cursor.location = (0, 0, 0)
+bpy.ops.object.ba_exv_explode()
+assert close(c.location, (0, 5, 0)), "end state must be set immediately"
+assert core.is_animating()
+assert core._tick() is not None  # first frame, t ~ 0 -> back near the start
+assert c.location.y < 3.2, c.location
+core._anim["start"] -= 10.0  # pretend time passed
+assert core._tick() is None  # finished
+assert close(c.location, (0, 5, 0)) and not core.is_animating()
+bpy.ops.object.ba_exv_reset()
+assert close(c.location, (0, 3, 0)) and not core.is_exploded(c)
+core._anim["start"] -= 10.0
+core._tick()
+assert close(c.location, (0, 3, 0))
 
 ba_exploded_view.unregister()
 print("ALL TESTS PASSED")

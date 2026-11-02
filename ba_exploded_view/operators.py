@@ -17,7 +17,7 @@ class BAEXV_OT_explode(bpy.types.Operator):
         if not objs:
             self.report({'WARNING'}, "No objects to explode")
             return {'CANCELLED'}
-        n = core.apply_explosion(context, objs, context.scene.ba_exploded_view)
+        n = core.apply_explosion(context, objs, context.scene.ba_exploded_view, animate=True)
         self.report({'INFO'}, f"Exploded {n} object(s)")
         return {'FINISHED'}
 
@@ -35,7 +35,7 @@ class BAEXV_OT_reset(bpy.types.Operator):
     def execute(self, context):
         sel = [o for o in context.selected_objects if core.is_exploded(o)]
         objs = sel if sel else [o for o in context.scene.objects if core.is_exploded(o)]
-        n = core.reset_objects(objs)
+        n = core.reset_objects(objs, context.scene.ba_exploded_view.duration)
         self.report({'INFO'}, f"Reset {n} object(s)")
         return {'FINISHED'}
 

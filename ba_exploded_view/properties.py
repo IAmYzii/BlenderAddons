@@ -18,14 +18,14 @@ class BAEXV_Settings(bpy.types.PropertyGroup):
         subtype='DISTANCE',
         update=_on_change,
     )
-    extra: FloatProperty(
-        name="Extra",
-        description="Added on top of the base distance (can be negative)",
-        default=0.0,
-        soft_min=-20.0,
-        soft_max=20.0,
-        subtype='DISTANCE',
-        update=_on_change,
+    duration: FloatProperty(
+        name="Animation",
+        description="How long Explode and Reset take to animate, in seconds (0 = instant)",
+        default=0.3,
+        min=0.0,
+        soft_max=2.0,
+        subtype='TIME_ABSOLUTE',
+        unit='TIME_ABSOLUTE',
     )
     center: EnumProperty(
         name="Center",

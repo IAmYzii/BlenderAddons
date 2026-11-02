@@ -9,11 +9,12 @@ Sidebar (`N`) in the 3D Viewport, tab **Exploded View**.
 - **Explode**: moves the selected objects away from the center. With nothing selected it
   explodes every visible object (cameras, lights, speakers and light probes are skipped).
 - **Reset**: restores the selected exploded objects, or all of them when nothing is selected.
-- **Distance**: base explosion distance. **Extra**: added on top (can be negative).
-  Both update live while objects are exploded.
+- **Distance**: explosion distance. Updates live while objects are exploded.
 - **Mode**: *Distance* moves every object the same length; *Scale* moves objects
   proportionally to how far they are from the center (Houdini's default).
 - **Center**: combined bounds of the exploded objects, the active object, or the 3D cursor.
+- **Animation**: Explode and Reset ease into place over this many seconds (default 0.3,
+  0 = instant). Slider changes apply instantly.
 
 Original positions are stored on each object, so clicking Explode again or changing the
 sliders never compounds, and Reset still works after saving and reopening the file.
@@ -35,5 +36,5 @@ and enable **BA Exploded View** in Preferences > Add-ons.
 ## Test
 
 ```
-blender -b --python tests/test_headless.py
+blender -b --factory-startup --python tests/test_headless.py
 ```

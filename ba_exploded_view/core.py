@@ -1,4 +1,6 @@
 """Explosion math and per-object state. No UI here."""
+import time
+
 import bpy
 from mathutils import Vector, Matrix
 
@@ -82,12 +84,13 @@ def compute_center(context, objs, settings):
     return (lo + hi) * 0.5
 
 
-def apply_explosion(context, objs, settings):
-    """Explode objs (storing originals first). Offsets are always computed from the originals."""
+def exploded_locations(context, objs, settings):
+    """Store originals, then return {obj: exploded location} without moving anything."""
     for o in objs:
         store_original(o)
     center = compute_center(context, objs, settings)
-    amount = settings.distance + settings.extra
+    amount = settings.distance
+    result = {}
     for o in objs:
         direction = original_center(o) - center
         if settings.mode == 'DISTANCE':
@@ -100,23 +103,83 @@ def apply_explosion(context, objs, settings):
         # Convert world-space offset into the object's parent space.
         to_world = _parent_space_matrix(o).to_3x3()
         local_offset = to_world.inverted_safe() @ offset
-        o.location = Vector(o[PROP_ORIG_LOC]) + local_offset
-    return len(objs)
+        result[o] = Vector(o[PROP_ORIG_LOC]) + local_offset
+    return result
 
 
-def reset_objects(objs):
-    n = 0
+def apply_explosion(context, objs, settings, animate=False):
+    """Explode objs. Offsets are always computed from the originals, so it never compounds."""
+    targets = exploded_locations(context, objs, settings)
+    _move(targets, settings.duration if animate else 0.0)
+    return len(targets)
+
+
+def reset_objects(objs, duration=0.0):
+    targets = {}
     for o in objs:
         if is_exploded(o):
-            o.location = Vector(o[PROP_ORIG_LOC])
+            targets[o] = Vector(o[PROP_ORIG_LOC])
             del o[PROP_ORIG_LOC]
             if PROP_ORIG_CENTER in o:
                 del o[PROP_ORIG_CENTER]
-            n += 1
-    return n
+    _move(targets, duration)
+    return len(targets)
 
 
 def reapply_all(context):
     objs = exploded_objects(context)
     if objs:
         apply_explosion(context, objs, context.scene.ba_exploded_view)
+
+
+# --- animation -------------------------------------------------------------
+# The final location is written immediately (so undo captures the real end
+# state); the tween is purely visual and runs on an app timer.
+
+_anim = {"segments": [], "start": 0.0, "duration": 0.0}
+_FPS_INTERVAL = 1.0 / 60.0
+
+
+def _move(targets, duration):
+    if duration <= 0.0 or not targets:
+        for o, loc in targets.items():
+            o.location = loc
+        _anim["segments"] = []
+        return
+    segments = []
+    for o, end in targets.items():
+        start = o.location.copy()
+        o.location = end  # final state now, so the operator's undo step is correct
+        if (end - start).length_squared > 1e-12:
+            segments.append((o, start, end))
+    _anim["segments"] = segments
+    _anim["start"] = time.perf_counter()
+    _anim["duration"] = duration
+    if segments and not bpy.app.timers.is_registered(_tick):
+        bpy.app.timers.register(_tick, first_interval=0.0)
+
+
+def _tick():
+    segs = _anim["segments"]
+    if not segs:
+        return None
+    t = (time.perf_counter() - _anim["start"]) / _anim["duration"]
+    done = t >= 1.0
+    t = 1.0 if done else t
+    f = t * t * (3.0 - 2.0 * t)  # smoothstep ease in/out
+    alive = []
+    for o, start, end in segs:
+        try:
+            o.location = start.lerp(end, f)
+            alive.append((o, start, end))
+        except ReferenceError:
+            pass  # object was deleted / undone mid-animation
+    if done or not alive:
+        _anim["segments"] = []
+        return None
+    _anim["segments"] = alive
+    return _FPS_INTERVAL
+
+
+def is_animating():
+    return bool(_anim["segments"])
