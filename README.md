@@ -1,46 +1,37 @@
 # BlenderAddons
 
-Collection of Blender add-ons.
+Collection of Blender add-ons. Each add-on lives in its own top-level folder.
 
----
+| Add-on | Folder | Description |
+|---|---|---|
+| BA Exploded View | [`ba_exploded_view/`](ba_exploded_view/) | Houdini-style exploded view for selected or all objects |
 
-# BA Exploded View
+## Repository conventions
 
-Blender 4.2+ extension that gives you a Houdini-style exploded view with one click.
+### Branching
 
-## Usage
+- `main` holds only tested, working features. Nothing is developed directly on `main`.
+- Every add-on (feature) has its own active branch, named after the add-on, for example `exploded-view`.
+  All work on that add-on happens on its branch.
+- Merge a feature branch into `main` only when the feature is tested and working. Use a merge
+  commit (`git merge --no-ff <branch>`) so the branch history stays visible.
+- After merging, keep the feature branch alive and continue development there. Merge into `main`
+  again when the next batch of changes is tested.
 
-Sidebar (`N`) in the 3D Viewport, tab **Exploded View**.
+### Add-on layout
 
-- **Explode**: moves the selected objects away from the center. With nothing selected it
-  explodes every visible object (cameras, lights, speakers and light probes are skipped).
-- **Reset**: restores the selected exploded objects, or all of them when nothing is selected.
-- **Distance**: explosion distance. Updates live while objects are exploded.
-- **Mode**: *Distance* moves every object the same length; *Scale* moves objects
-  proportionally to how far they are from the center (Houdini's default).
-- **Center**: combined bounds of the exploded objects, the active object, or the 3D cursor.
-- **Animation**: Explode and Reset ease into place over this many seconds (default 0.3,
-  0 = instant). Slider changes apply instantly.
+- Each add-on folder is a complete Blender extension: `blender_manifest.toml`, `__init__.py`,
+  its modules, and its own `README.md`.
+- The add-on's `README.md` documents that add-on only: what it does, how to use it, how to
+  install it, and how to test it. This root README only lists the add-ons and the conventions.
+- Tests for an add-on go in `tests/` and run headless, for example
+  `blender -b --factory-startup --python tests/test_headless.py`.
 
-Original positions are stored on each object, so clicking Explode again or changing the
-sliders never compounds, and Reset still works after saving and reopening the file.
-A child whose parent is also being exploded is left alone so it does not move twice.
+### Development install
 
-## Install
-
-Blender > Edit > Preferences > Get Extensions > Install from Disk, choose a zip of the
-`ba_exploded_view` folder. Or build the zip:
-
-```
-blender --command extension build --source-dir ba_exploded_view --output-dir dist
-```
-
-For development, link the folder into Blender's user extensions repo
-(`%APPDATA%\Blender Foundation\Blender\4.5\extensions\user_default\ba_exploded_view`)
-and enable **BA Exploded View** in Preferences > Add-ons.
-
-## Test
+Link the add-on folder into Blender's user extensions repository and enable it in
+Preferences > Add-ons:
 
 ```
-blender -b --factory-startup --python tests/test_headless.py
+%APPDATA%\Blender Foundation\Blender\<version>\extensions\user_default\<addon_folder>
 ```
