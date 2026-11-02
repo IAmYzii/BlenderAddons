@@ -1,0 +1,16 @@
+# Keep source files LF in the repository and in working copies on every platform,
+# so Blender/Python sees identical bytes everywhere and git stops warning about CRLF.
+* text=auto
+*.py    text eol=lf
+*.toml  text eol=lf
+*.md    text eol=lf
+*.yml   text eol=lf
+*.yaml  text eol=lf
+*.json  text eol=lf
+*.ps1   text eol=crlf
+
+# Binary
+*.zip   binary
+*.blend binary
+*.png   binary
+*.jpg   binary
