@@ -47,16 +47,7 @@ class BAMAT_PT_panel(bpy.types.Panel):
             for mat, keep in entries:
                 r = box.row(align=True)
                 r.separator(factor=2.0)
-                if mat is not None:
-                    # Viewport color swatch of the material, drawn read-only.
-                    sw = r.row(align=True)
-                    sw.enabled = False
-                    sw.scale_x = 0.5
-                    sw.prop(mat, "diffuse_color", text="")
-                    name = mat.name
-                else:
-                    r.label(text="", icon='BLANK1')
-                    name = "(empty slot)"
+                name = mat.name if mat is not None else "(empty slot)"
                 if keep:
                     r.label(text=name, icon='CHECKMARK')
                 else:
