@@ -61,6 +61,21 @@ for o in (a, b, c, curve, light, empty):
 ctx.view_layer.objects.active = a
 assert bpy.ops.object.ba_mat_assign.poll()
 
+# 1b. Preview of changes: Target is not on anything yet -> everything removed.
+targets = core.supported_targets([a, b, c, curve, light, empty])
+rows, kept, removed = core.material_changes(targets, target)
+assert [o.name for o, _ in rows] == ["A", "B", "C", curve.name]
+assert kept == 0 and removed == 3 + 1 + 0 + 2, (kept, removed)
+by_name = {o.name: e for o, e in rows}
+assert by_name["C"] == []  # no slots -> material will be added
+# With Green chosen, Green slots are kept, the rest removed.
+rows, kept, removed = core.material_changes(targets, green)
+by_name = {o.name: e for o, e in rows}
+assert kept == 2 and removed == 4, (kept, removed)
+# A's second slot is object-linked to Blue, so the slot view is Red, Blue, Blue: none kept.
+assert [(m.name if m else None, k) for m, k in by_name["A"]] == [("Red", False), ("Blue", False), ("Blue", False)]
+assert [(m.name, k) for m, k in by_name["B"]] == [("Green", True)]
+
 # 2. Assign.
 assert bpy.ops.object.ba_mat_assign() == {'FINISHED'}
 for o in (a, b, c):

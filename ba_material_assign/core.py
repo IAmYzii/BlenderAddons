@@ -19,6 +19,28 @@ def supported_targets(objects):
     return out
 
 
+def material_changes(objects, material):
+    """Preview of what assign_single_material would do.
+
+    Returns a list of (obj, [(slot_material_or_None, keep), ...]) in selection order, plus
+    totals: (rows, kept_count, removed_count). A slot is kept when it already holds `material`.
+    Empty slots count as removed. Objects with no slots get an empty list (material is added).
+    """
+    rows = []
+    kept = removed = 0
+    for o in objects:
+        entries = []
+        for slot in o.material_slots:
+            keep = material is not None and slot.material is material
+            entries.append((slot.material, keep))
+            if keep:
+                kept += 1
+            else:
+                removed += 1
+        rows.append((o, entries))
+    return rows, kept, removed
+
+
 def assign_single_material(objects, material):
     """Remove every material slot on each object and leave exactly one slot holding `material`.
 

@@ -10,7 +10,11 @@ Sidebar (`N`) in the 3D Viewport, tab **Toolbox**, panel **Material Assign**.
 1. Choose a material in the picker. It lists every material in the file. The eyedropper button
    next to it takes the active object's active material instead.
 2. Select the objects to change.
-3. Click **Assign to Selected**. The button shows how many selected objects will be affected.
+3. Check the preview list under the button: every selected object with its material slots.
+   A green check marks a slot that already holds the chosen material and stays; a red X marks
+   a material that will be removed. Objects without materials show the material that will be
+   added. The header totals how many slots are kept and removed.
+4. Click **Assign to Selected**. The button shows how many selected objects will be affected.
 
 What happens on each selected object:
 
