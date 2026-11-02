@@ -24,6 +24,9 @@ Collection of Blender add-ons. Each add-on lives in its own top-level folder.
   its modules, and its own `README.md`.
 - The add-on's `README.md` documents that add-on only: what it does, how to use it, how to
   install it, and how to test it. This root README only lists the add-ons and the conventions.
+- Every add-on puts its 3D Viewport sidebar panel in the shared **Toolbox** tab
+  (`bl_category = "Toolbox"`), with the add-on name as the panel label. One tab for all tools
+  keeps the sidebar tidy as the collection grows.
 - Tests for an add-on go in `tests/` and run headless, for example
   `blender -b --factory-startup --python tests/test_headless.py`.
 

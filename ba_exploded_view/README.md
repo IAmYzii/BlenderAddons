@@ -4,7 +4,7 @@ Blender 4.2+ extension that gives you a Houdini-style exploded view with one cli
 
 ## Usage
 
-Sidebar (`N`) in the 3D Viewport, tab **Exploded View**.
+Sidebar (`N`) in the 3D Viewport, tab **Toolbox**, panel **Exploded View**.
 
 - **Explode**: moves the selected objects away from the center. With nothing selected it
   explodes every visible object (cameras, lights, speakers and light probes are skipped).
