@@ -5,8 +5,8 @@ import bpy
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
-import ba_material_assign  # noqa: E402
-from ba_material_assign import core  # noqa: E402
+from ba_toolbox.tools import material_assign as ba_material_assign  # noqa: E402
+from ba_toolbox.tools.material_assign import core  # noqa: E402
 
 ba_material_assign.register()
 bpy.ops.wm.read_homefile(use_empty=True)

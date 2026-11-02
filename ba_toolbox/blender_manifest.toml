@@ -1,0 +1,20 @@
+schema_version = "1.0.0"
+
+id = "ba_toolbox"
+version = "0.2.0"
+name = "BA Toolbox"
+tagline = "Small production tools: exploded view, material assign"
+maintainer = "Patrik Prochazka"
+type = "add-on"
+tags = ["Object", "Material", "3D View"]
+blender_version_min = "4.2.0"
+license = ["SPDX:GPL-3.0-or-later"]
+website = "https://github.com/IAmYzii/BlenderAddons"
+
+# Paths excluded from the built zip.
+[build]
+paths_exclude_pattern = [
+  "__pycache__/",
+  "/.git/",
+  "*.zip",
+]

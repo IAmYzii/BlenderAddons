@@ -10,6 +10,9 @@ else:
     import bpy  # noqa: F401
     from . import core, properties, operators, ui
 
+label = "Exploded View"
+description = "Explode selected or all objects radially from a center, with live distance and reset"
+
 _modules = (properties, operators, ui)
 
 

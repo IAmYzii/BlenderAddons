@@ -1,6 +1,6 @@
 # BA Material Assign
 
-Blender 4.2+ extension: pick one material from the current file and, with one click, make it
+Tool of the **BA Toolbox** Blender extension: pick one material from the current file and, with one click, make it
 the only material on every selected object.
 
 ## Usage
@@ -34,18 +34,8 @@ Notes:
 
 ## Install
 
-Blender > Edit > Preferences > Get Extensions > Install from Disk, choose a zip of the
-`ba_material_assign` folder. Or build the zip:
-
-```
-blender --command extension build --source-dir ba_material_assign --output-dir dist   # run from the repository root
-```
-
-For development, link the folder into Blender's user extensions repo
-(`%APPDATA%\Blender Foundation\Blender\5.2\extensions\user_default\ba_material_assign`)
-and enable **BA Material Assign** in Preferences > Add-ons. After editing, use
-**Reload Scripts** (F3) in Blender; `__init__.py` reloads its submodules so the change is
-live without a restart. See the repository README for details.
+This tool ships as part of **BA Toolbox**; see the repository README for installation and
+the development setup. It can be switched on or off in the toolbox's add-on preferences.
 
 ## Test
 

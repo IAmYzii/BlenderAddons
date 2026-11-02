@@ -1,6 +1,6 @@
 # BA Exploded View
 
-Blender 4.2+ extension that gives you a Houdini-style exploded view with one click.
+Tool of the **BA Toolbox** Blender extension that gives you a Houdini-style exploded view with one click.
 
 ## Usage
 
@@ -22,21 +22,11 @@ A child whose parent is also being exploded is left alone so it does not move tw
 
 ## Install
 
-Blender > Edit > Preferences > Get Extensions > Install from Disk, choose a zip of the
-`ba_exploded_view` folder. Or build the zip:
-
-```
-blender --command extension build --source-dir ba_exploded_view --output-dir dist   # run from the repository root
-```
-
-For development, link the folder into Blender's user extensions repo
-(`%APPDATA%\Blender Foundation\Blender\4.5\extensions\user_default\ba_exploded_view`)
-and enable **BA Exploded View** in Preferences > Add-ons. After editing, use
-**Reload Scripts** (F3) in Blender; `__init__.py` reloads its submodules so the change is
-live without a restart. See the repository README for details.
+This tool ships as part of **BA Toolbox**; see the repository README for installation and
+the development setup. It can be switched on or off in the toolbox's add-on preferences.
 
 ## Test
 
 ```
-blender -b --factory-startup --python tests/test_headless.py   # run from the repository root
+blender -b --factory-startup --python tests/test_exploded_view.py   # run from the repository root
 ```

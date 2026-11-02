@@ -1,4 +1,4 @@
-"""Run with: blender -b --factory-startup --python tests/test_headless.py"""
+"""Run with: blender -b --factory-startup --python tests/test_exploded_view.py"""
 import sys
 import os
 import bpy
@@ -6,8 +6,8 @@ from mathutils import Vector
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
-import ba_exploded_view  # noqa: E402
-from ba_exploded_view import core  # noqa: E402
+from ba_toolbox.tools import exploded_view as ba_exploded_view  # noqa: E402
+from ba_toolbox.tools.exploded_view import core  # noqa: E402
 
 ba_exploded_view.register()
 bpy.ops.wm.read_homefile(use_empty=True)
