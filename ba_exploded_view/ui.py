@@ -6,7 +6,7 @@ class BAEXV_PT_panel(bpy.types.Panel):
     bl_label = "Exploded View"
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
-    bl_category = "Exploded View"
+    bl_category = "Toolbox"  # shared sidebar tab for all add-ons in this repository
 
     def draw(self, context):
         layout = self.layout
